@@ -26,6 +26,15 @@ public class CompanyController {
     @Operation(summary = "get a company given a company name")
     @GetMapping(path = "{name}")
     public ResponseEntity<Company> get(@PathVariable String name) {
+    	
+//    Para simular una falla    	
+//    	try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    	
     	//Dice que ese log sera importante cuando veamos trazbilidad
         log.info("GET: company {}", name);
         return ResponseEntity.ok(this.companyService.readByName(name));

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: gateway
+  profiles:
+    default: eureka-on-cb
+server:
+  port: 4040
+eureka:
+  client:
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+logging:
+  level:
+    org.springframework.cloud.gateway.filter.factory: DEBUG
+    io.github.resilience4j: DEBUG
+    org.springframework.web: DEBUG
