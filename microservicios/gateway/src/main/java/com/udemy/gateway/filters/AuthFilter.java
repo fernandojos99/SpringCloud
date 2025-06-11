@@ -11,10 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-
-// BORRAR ESTA CLASE SI NO FUNCIONA BIEN PORQUE LA AGREGUE PARA JUNTAR CON PLATZI
-
-
 @Component
 public class AuthFilter implements GatewayFilter {
 

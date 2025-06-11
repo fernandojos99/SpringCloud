@@ -14,6 +14,7 @@ import com.udemy.report_ms.models.Company;
 import com.udemy.report_ms.models.WebSite;
 import com.udemy.report_ms.repositories.CompaniesFallbackRepository;
 import com.udemy.report_ms.repositories.CompaniesRepository;
+import com.udemy.report_ms.streams.ReportPublisher;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ReportServiceImpl implements ReportService{
 
 	private final CompaniesRepository companiesRepository;
-	//private final EurekaClient eurekaClient;
+	private final EurekaClient eurekaClient;
 	private final ReportHelper reportHelper;
 	private final CompaniesFallbackRepository companiesFallbackRepository;
 	private final Resilience4JCircuitBreakerFactory  circuitBreakerFactory  ;
+	private final ReportPublisher reportPublisher;
 	
 	
 //	@Override
@@ -82,7 +84,8 @@ public class ReportServiceImpl implements ReportService{
 	                .founder(placeholders.get(2))
 	                .webSites(webSites)
 	                .build();
-
+	        
+	        this.reportPublisher.publishReport(report);
 	        this.companiesRepository.postByName(company);
 	        return "Saved";
 	    }
