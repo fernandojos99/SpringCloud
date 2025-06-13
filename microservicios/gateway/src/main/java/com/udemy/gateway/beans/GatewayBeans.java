@@ -154,20 +154,6 @@ public class GatewayBeans {
                     .build();
         
         
-        
-        
-        
-        
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
 }
