@@ -1,6 +1,6 @@
 db:
   url: jdbc:postgresql://db-companies:5432/companies
-  username: fernando-prod
-  password: 123_prod
+  username: fernando
+  password: 123
   connection-timeout: 20000
   maximum-pool-size: 5
