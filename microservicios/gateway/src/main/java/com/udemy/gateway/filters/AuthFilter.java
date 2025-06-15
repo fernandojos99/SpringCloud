@@ -21,7 +21,7 @@ public class AuthFilter implements GatewayFilter {
     private final WebClient webClient;
 
     //Para validar el filtro
-    private static final String AUTH_VALIDATE_URI = "http://localhost:3000/auth-server/auth/jwt";
+    private static final String AUTH_VALIDATE_URI = "http://ms-auth:3000/auth-server/auth/jwt";
     //private static final String AUTH_VALIDATE_URI = "http://localhost:8081/product/api/auth/valid"; 
     private static final String ACCESS_TOKEN_HEADER_NAME = "accessToken";
 

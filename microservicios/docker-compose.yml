@@ -36,7 +36,7 @@ services:
         KAFKA_BROKER_ID: 1
         KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://msg-broker:9092,PLAINTEXT_INTERNAL://msg-broker:29092
         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
         KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
         KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -55,7 +55,7 @@ services:
       ports:
         - "27017:27017"
 
-    # los siguientes son para la trazabilidad
+    # # los siguientes son para la trazabilidad
 
     otel-collector:
       image: otel/opentelemetry-collector-contrib:0.82.0
@@ -125,6 +125,108 @@ services:
       ports:
         - "9411:9411"
 
+# Hasta aqui llega la trazabilidad
+    ms-registry-server:
+    # El nombre que le damos al contenedor
+      image: ms-udemy-registry-server:1.0.0
+      container_name: ms-registry-server
+      # Para que cada que se baje se reinicie 
+      restart: always
+      ports:
+        - "8761:8761"
 
 
-    # Hasta aqui llega la trazabilidad
+    ms-config-server:
+      image: ms-udemy-config-server:1.0.0
+      container_name: ms-config-server
+      # Para que cada que se baje se reinicie 
+      restart: always
+      ports:
+        - "7777:7777"
+      depends_on:
+        - ms-registry-server
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
+
+
+    ms-companies:
+      image: ms-udemy-companies-crud:1.0.0
+      container_name: ms-udemy-companies-crud
+      restart: always
+      # ports:
+      #   - "8081:8081"
+      depends_on:
+        - ms-config-server
+        - db
+        - otel-collector
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
+        CONFIG_SERVER_HOST: http://ms-config-server:7777
+        OTLP_METRICS_URL: http://otel-collector:4318/v1/metrics
+        OTLP_TRACING_URL: http://otel-collector:4318/v1/traces
+
+
+
+    ms-companies-fallback:
+      image: ms-udemy-companies-fallback:1.0.0
+      container_name: ms-companies-fallback
+      restart: always
+      ports:
+        - "8787:8787"
+      depends_on:
+        - ms-config-server
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
+
+    ms-report:
+      image: ms-udemy-report:1.0.0
+      container_name: ms-report
+      restart: always
+      ports:
+        - "7070:7070"
+      depends_on:
+        - ms-config-server
+        - kafka
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
+        CONFIG_SERVER_HOST: http://ms-config-server:7777
+        BROKER_URL: 'msg-broker:9092'
+
+    ms-report-listener:
+      image: ms-udemy-report-listener:1.0.0
+      container_name: ms-report-listener
+      restart: always
+ #     ports:
+ #       - "7070:7070"
+      depends_on:
+        - kafka
+        - ms-report
+        - mongo-db
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
+        MONGO_HOST: 'mongo-db'
+        BROKER_URL: msg-broker:9092
+
+    ms-auth:
+      image: ms-udemy-auth:1.0.0
+      container_name: ms-udemy-auth 
+      restart: always
+      ports:
+        - "3000:3000"
+      depends_on:
+        - ms-config-server
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
+        CONFIG_SERVER_HOST: http://ms-config-server:7777
+
+
+    ms-gateway:
+      image: ms-udemy-gateway:1.0.0
+      container_name: ms-udemy-gateway
+      restart: always
+      ports:
+        - "4040:4040"
+      depends_on:
+        - ms-config-server
+      environment:
+        EUREKA_URL: http://ms-registry-server:8761/eureka/
