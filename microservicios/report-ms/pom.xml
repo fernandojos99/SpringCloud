@@ -87,8 +87,13 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-stream-kafka</artifactId>
 		</dependency>
-		
-		
+
+
+		<dependency>
+			<groupId>com.udemy</groupId>
+			<artifactId>companies-crud-fallback</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	
 	

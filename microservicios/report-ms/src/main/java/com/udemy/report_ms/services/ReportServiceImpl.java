@@ -19,6 +19,10 @@ import com.udemy.report_ms.streams.ReportPublisher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 //Para que ahi se encargue de hacer las dependencias
 @AllArgsConstructor
@@ -31,6 +35,8 @@ public class ReportServiceImpl implements ReportService{
 	private final CompaniesFallbackRepository companiesFallbackRepository;
 	private final Resilience4JCircuitBreakerFactory  circuitBreakerFactory  ;
 	private final ReportPublisher reportPublisher;
+	//
+	private final ObjectMapper objectMapper; 
 	
 	
 //	@Override
@@ -74,6 +80,8 @@ public class ReportServiceImpl implements ReportService{
 	public String saveReport(String report) {
 	       var format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	       var placeholders = this.reportHelper.getPlaceholdersFromTemplate(report);
+	       //
+	       var circuitBreaker = this.circuitBreakerFactory.create("companies-circuitbreaker-event");
 	        var webSites = Stream.of(placeholders.get(3))
 	                .map(website -> WebSite.builder().name(website).build())
 	                .toList();
@@ -86,7 +94,19 @@ public class ReportServiceImpl implements ReportService{
 	                .build();
 	        
 	        this.reportPublisher.publishReport(report);
-	        this.companiesRepository.postByName(company);
+	        
+	        
+	        //this.companiesRepository.postByName(company);
+	        
+	        // lo que seagrega
+	        
+	        circuitBreaker.run(
+	                () -> this.companiesRepository.postByName(company),
+	                //Para que se envie en forma de json , para que en el companies-crud podamos leerlo facilemente
+	                throwable -> this.reportPublisher.publishCbReport(this.buildEventMsg(company))
+	        );
+	        // hasta aqui  , salta el desearalizar
+	        
 	        return "Saved";
 	    }
 
@@ -97,17 +117,14 @@ public class ReportServiceImpl implements ReportService{
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	//Aqui vamos a pasar nuestro company a un JSON
+    private String buildEventMsg(Company company) {
+        try {
+            return this.objectMapper.writeValueAsString(company);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 	
 	

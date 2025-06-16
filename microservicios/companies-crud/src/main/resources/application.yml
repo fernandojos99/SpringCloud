@@ -1,21 +1,39 @@
 spring:
+  kafka:
+    listener:
+     # el ack genera como un aviso de que ya leyo el mensaje
+      ack-mode: manual_immediate
+    consumer:
+     # se refiera al kafka 
+      bootstrap-servers: localhost:9092
+      auto-offset-reset: earliest
+     # Las siguientes 2 lineas es para indicar como vamos a deserealizar los mensajes que llegue (key:value)
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: circuitbreaker
+
   datasource:
     username: ${db.username}
-    hikari:
-      maximum-pool-size:  ${db.maximum-pool-size}
-      connection-timeout: ${db.connection-timeout}
-    url: ${db.url}
     password: ${db.password}
+    url: ${db.url}
+    hikari:
+      maximum-pool-size: ${db.maximum-pool-size}
+      connection-timeout: ${db.connection-timeout}
+
   application:
     name: companies-crud
+
   profiles:
     default: default
+
   config:
     import: "optional:configserver:http://localhost:7777"
+
 server:
   servlet:
     context-path: /companies-crud
   port: 8081
+
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
@@ -27,12 +45,14 @@ logging:
           descriptor:
             sql:
               BasicBinder: TRACE
+
 eureka:
   instance:
     instance-id: "${spring.application.name}:${random.value}"
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
 management:
   tracing:
     enabled: true
@@ -53,16 +73,3 @@ management:
       percentiles-histogram:
         do.sleep.method.timed: true
         http.server.requests: true
-      minimum-expected-value:
-        do.sleep.method.timed: 100ms
-        http.server.requests: 100ms
-      maximum-expected-value:
-        do.sleep.method.timed: 10s
-        http.server.requests: 10s
-      slo:
-        do.sleep.method.timed: 300ms,500ms,1s,2s
-        http.server.requests: 300ms,500ms,1s,2s
-  endpoints:
-    web:
-      exposure:
-        include: '*'

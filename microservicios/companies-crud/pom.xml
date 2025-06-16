@@ -91,6 +91,12 @@
 		</dependency>
 		
 		
+		<!--Para kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		
 		<!--Las siguientes dependencias seran para la trazabilidad-->
 		
 		<dependency>

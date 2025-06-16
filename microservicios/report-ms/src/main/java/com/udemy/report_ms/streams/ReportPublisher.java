@@ -3,6 +3,8 @@ package com.udemy.report_ms.streams;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;
 
+import com.udemy.report_ms.models.Company;
+
 import lombok.AllArgsConstructor;
 
 @Component
@@ -23,5 +25,35 @@ public class ReportPublisher {
         this.streamBridge.send("consumerReport-in-0", report);
         this.streamBridge.send("consumerReport-out-0", report);
     }
+    
+    
+    // Importante cambiar el nombre del topico
+    /*
+     * topic name -> consumerCbReport
+     */
+    public Company publishCbReport(String company) {
+        this.streamBridge.send("consumerCbReport", company);
+        this.streamBridge.send("consumerCbReport-in-0", company);
+        this.streamBridge.send("consumerCbReport-out-0", company);
+        // Dice que el compani no lo vamos a ocupar pero el circuitbreaker siempre espera
+        //un objeto
+        return Company.builder().build();
+    }
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
