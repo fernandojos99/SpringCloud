@@ -11,6 +11,8 @@ import com.udemy.companies_crud.entities.Category;
 import com.udemy.companies_crud.entities.Company;
 import com.udemy.companies_crud.repositories.CompanyRepository;
 
+import io.micrometer.tracing.Tracer;
+
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -27,6 +29,7 @@ public class CompanyServiceImpl implements CompanyService {
 	//Dice que el autowired ya no es necesario , solo se ocupa para los test 
 	@Autowired
     private final CompanyRepository companyRepository;
+	private final Tracer tracer;
 
     @Override
     public Company create(Company company) {
@@ -41,6 +44,17 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Company readByName(String name) {
+    	
+    	//inicio de configuracion del span 
+    	  var spam = tracer.nextSpan().name("readByName");
+    	  // El span actual con el que esta trabajando
+          try (Tracer.SpanInScope spanInScope = this.tracer.withSpan(spam.start())) {
+              log.info("Getting comany from DB");
+          } finally {
+              spam.end();
+          }
+    	// fin de la configuracion del span
+    	
         return this.companyRepository.findByName(name)
                 .orElseThrow(() -> new NoSuchElementException("Company not found"));
     }

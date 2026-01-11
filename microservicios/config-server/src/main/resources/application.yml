@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: default
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/FErNANDoJOS99/SpringCloudUdemy.git
+          default-label: master
+          clone-on-start: true
+          username: FErNANDoJOS99
+          password: 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
+
+server:
+  port: 7777
+
+eureka:
+  instance:
+    instance-id: "${spring.application.name}:${random.value}"
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL}
