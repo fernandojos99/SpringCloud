@@ -11,7 +11,7 @@ Implementing the following components:
 5. Circuit breaker (Spring Cloud Circuit Breaker)
 6. Streaming :kafka(spring-cloud-starter-stream)7. Traceability (Open-telemetry , zipkin)
 
-![alt text](images/schema.png)
+![alt text](schema.png)
 
 
 Docker Compose already exists, but it uses pre-made images of each service. So, we need to create those images first.
